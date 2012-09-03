@@ -41,16 +41,21 @@
  *    java -jar tika-app-1.2-fix-TIKA709-TIKA964.jar -p 127.0.0.1:8072 -t -eutf-8
  * 4) Put following lines into your LocalSettings.php:
  *
- * require_once "$IP/extensions/TikaMW/TikaMW.php";
+ *    require_once "$IP/extensions/TikaMW/TikaMW.php";
  *
- * // Server address, should be same as one on the tika-app.jar command line
- * $egTikaServer = '127.0.0.1:8072';
+ *    // Server address, should be same as one on the tika-app.jar command line
+ *    $egTikaServer = '127.0.0.1:8072';
  *
- * // Optionally specify filename to write extraction logs into it
- * $egTikaLogFile = NULL;
+ *    // Optionally specify filename to write extraction logs into it
+ *    $egTikaLogFile = NULL;
  *
- * // If your Tika is newer and supports more formats than 1.2,
- * // you can override supported mime types with $egTikaMimeTypes (see below).
+ *    // If your Tika is newer and supports more formats than 1.2,
+ *    // you can override supported mime types with $egTikaMimeTypes (see below).
+ *
+ * 5) If you install it on a MediaWiki that already has uploaded files, you should
+ *    rebuild the fulltext index - use maintenance/rebuildtextindex.php on stock
+ *    mediawiki, extensions/SphinxSearchEngine/rebuild-sphinx.php if you use
+ *    SphinxSearchEngine or maybe other script for some other engine.
  */
 
 $wgHooks['SearchUpdate'][] = 'efTikaSearchUpdate';
