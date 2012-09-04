@@ -79,18 +79,26 @@ function efTikaSearchUpdate($id, $namespace, $title, &$text)
         $cli = new TikaClient($egTikaServer, $egTikaMimeTypes, NULL, 'wfDebug', true);
         if (defined('HACL_HALOACL_VERSION'))
         {
+            // Compatibility with IntraACL extension -- skip right checks here
             $etc = $haclgEnableTitleCheck;
             $haclgEnableTitleCheck = false;
         }
         $file = wfFindFile($title);
-        $filetext = $cli->extractTextFromFile($file->getPath(), $file->getMimeType());
-        if (defined('HACL_HALOACL_VERSION'))
+        if ($file && file_exists($file->getPath()))
         {
-            $haclgEnableTitleCheck = $etc;
+            $filetext = $cli->extractTextFromFile($file->getPath(), $file->getMimeType());
+            if (defined('HACL_HALOACL_VERSION'))
+            {
+                $haclgEnableTitleCheck = $etc;
+            }
+            if ($filetext)
+            {
+                $text .= ' '.$filetext;
+            }
         }
-        if ($filetext)
+        else
         {
-            $text .= ' '.$filetext;
+            wfDebug("TikaMW search update: file $title does not exist\n");
         }
     }
     return true;
