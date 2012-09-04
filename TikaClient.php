@@ -2,7 +2,7 @@
 
 /**
  * PHP client for Apache Tika Application running in server mode.
- * License: FSF GPLv3 or later
+ * License: FSF GPLv3 or later (see http://www.fsf.org/licenses/gpl.html)
  * Copyright (c) 2012, Vitaliy Filippov
  */
 class TikaClient
