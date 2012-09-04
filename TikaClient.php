@@ -11,21 +11,23 @@ class TikaClient
 
     protected $tikaServer, $tikaPort;
     protected $mimeTypes, $mimeRegexp;
-    protected $verbose, $logfile;
+    protected $verbose, $logfile, $logcallback;
 
     /**
      * Create a client object.
      *
      * @param string $tikaServer IP and port server is listening to
      * @param string $mimeTypes Space-separated list of wildcards for supported MIME types
-     * @param string $logfile Filename for error logging, or NULL to use STDERR
+     * @param string $logfile Filename for error logging
+     * @param callback $logcallback Callback function for error logging
      * @param boolean $verbose If true, empty response will be treated as error,
      *   and also success responses will be logged
      */
-    public function __construct($tikaServer, $mimeTypes, $logfile = NULL, $verbose = false)
+    public function __construct($tikaServer, $mimeTypes, $logfile = NULL, $logcallback = NULL, $verbose = false)
     {
         $this->mimeTypes = $mimeTypes;
         $this->logfile = $logfile;
+        $this->logcallback = $logcallback;
         $this->verbose = $verbose;
         if (strpos($tikaServer, ':') === false)
         {
@@ -55,13 +57,20 @@ class TikaClient
     }
 
     /**
-     * Log message to file or to STDERR
+     * Log message to file or to function
      * @param string $msg
      */
     protected function log($msg)
     {
         $msg = date("[Y-m-d H:i:s] ").$msg."\n";
-        file_put_contents($this->logfile ?: "php://stderr", $msg, FILE_APPEND);
+        if ($this->logcallback)
+        {
+            call_user_func($this->logcallback, $msg);
+        }
+        elseif ($this->logfile)
+        {
+            file_put_contents($this->logfile, $msg, FILE_APPEND);
+        }
     }
 
     /**
