@@ -46,9 +46,6 @@
  *    // Server address, should be same as one on the tika-app.jar command line
  *    $egTikaServer = '127.0.0.1:8072';
  *
- *    // Optionally specify filename to write extraction logs into it
- *    $egTikaLogFile = NULL;
- *
  *    // If your Tika is newer and supports more formats than 1.2,
  *    // you can override supported mime types with $egTikaMimeTypes (see below).
  *
@@ -62,7 +59,6 @@ $wgHooks['SearchUpdate'][] = 'efTikaSearchUpdate';
 $wgAutoloadClasses['TikaClient'] = __DIR__.'/TikaClient.php';
 
 $egTikaServer = '127.0.0.1:8072';
-$egTikaLogFile = NULL;
 $egTikaMimeTypes = '
     text/*
     application/*+xml
@@ -80,7 +76,7 @@ function efTikaSearchUpdate($id, $namespace, $title, &$text)
     if ($namespace == NS_FILE)
     {
         global $egTikaServer, $egTikaMimeTypes, $egTikaLogFile, $haclgEnableTitleCheck;
-        $cli = new TikaClient($egTikaServer, $egTikaMimeTypes, $egTikaLogFile, true);
+        $cli = new TikaClient($egTikaServer, $egTikaMimeTypes, NULL, 'wfDebug', true);
         if (defined('HACL_HALOACL_VERSION'))
         {
             $etc = $haclgEnableTitleCheck;
