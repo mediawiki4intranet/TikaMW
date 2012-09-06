@@ -71,6 +71,16 @@ $egTikaMimeTypes = '
     application/pdf
     application/rtf';
 
+// Extension credits that will show up on Special:Version
+$wgExtensionCredits['other'][] = array(
+    'path'        => __FILE__,
+    'name'        => 'TikaMW',
+    'version'     => '2012-09-04',
+    'author'      => 'Vitaliy Filippov',
+    'url'         => 'http://wiki.4intra.net/TikaMW',
+    'description' => 'Apache Tika (http://tika.apache.org/) support for indexing binary uploaded files',
+);
+
 function efTikaSearchUpdate($id, $namespace, $title, &$text)
 {
     if ($namespace == NS_FILE)
