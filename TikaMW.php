@@ -94,9 +94,10 @@ function efTikaSearchUpdate($id, $namespace, $title, &$text)
             $haclgEnableTitleCheck = false;
         }
         $file = wfFindFile($title);
-        if ($file && file_exists($file->getPath()))
+	
+        if ($file && $file->exists())
         {
-            $filetext = $cli->extractTextFromFile($file->getPath(), $file->getMimeType());
+            $filetext = $cli->extractTextFromFile($file->getLocalRefPath(), $file->getMimeType());
             if (defined('HACL_HALOACL_VERSION'))
             {
                 $haclgEnableTitleCheck = $etc;
