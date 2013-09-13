@@ -86,6 +86,24 @@ function efTikaSearchUpdate($id, $namespace, $title, &$text)
     if ($namespace == NS_FILE)
     {
         global $egTikaServer, $egTikaMimeTypes, $egTikaLogFile, $haclgEnableTitleCheck;
+        static $path_method = null;
+
+        // Starting with version 1.21, MediaWiki changed the API on the File 
+        // object wherein getPath() returned a mwstore URL rather than a path
+        // on the file system.  This logic resolves which API to call upon
+        // first invocation and caches the result in a static variable.
+        if (is_null($path_method)) 
+        {
+            if (method_exists('File', 'getLocalRefPath')) 
+            {
+                $path_method = 'getLocalRefPath';
+            }
+            else 
+            {
+                $path_method = 'getPath';
+            }
+        }
+        
         $cli = new TikaClient($egTikaServer, $egTikaMimeTypes, NULL, 'wfDebug', true);
         if (defined('HACL_HALOACL_VERSION'))
         {
@@ -93,10 +111,11 @@ function efTikaSearchUpdate($id, $namespace, $title, &$text)
             $etc = $haclgEnableTitleCheck;
             $haclgEnableTitleCheck = false;
         }
+
         $file = wfFindFile($title);
-        if ($file && file_exists($file->getPath()))
+        if ($file && file_exists($file_path = $file->$path_method()))
         {
-            $filetext = $cli->extractTextFromFile($file->getPath(), $file->getMimeType());
+            $filetext = $cli->extractTextFromFile($file_path, $file->getMimeType());
             if (defined('HACL_HALOACL_VERSION'))
             {
                 $haclgEnableTitleCheck = $etc;
