@@ -92,18 +92,18 @@ function efTikaSearchUpdate($id, $namespace, $title, &$text)
         // object wherein getPath() returned a mwstore URL rather than a path
         // on the file system.  This logic resolves which API to call upon
         // first invocation and caches the result in a static variable.
-        if (is_null($path_method)) 
+        if (is_null($path_method))
         {
-            if (method_exists('File', 'getLocalRefPath')) 
+            if (method_exists('File', 'getLocalRefPath'))
             {
                 $path_method = 'getLocalRefPath';
             }
-            else 
+            else
             {
                 $path_method = 'getPath';
             }
         }
-        
+
         $cli = new TikaClient($egTikaServer, $egTikaMimeTypes, NULL, 'wfDebug', true);
         if (defined('HACL_HALOACL_VERSION'))
         {
@@ -116,10 +116,6 @@ function efTikaSearchUpdate($id, $namespace, $title, &$text)
         if ($file && file_exists($file_path = $file->$path_method()))
         {
             $filetext = $cli->extractTextFromFile($file_path, $file->getMimeType());
-            if (defined('HACL_HALOACL_VERSION'))
-            {
-                $haclgEnableTitleCheck = $etc;
-            }
             if ($filetext)
             {
                 $text .= ' '.$filetext;
@@ -128,6 +124,12 @@ function efTikaSearchUpdate($id, $namespace, $title, &$text)
         else
         {
             wfDebug("TikaMW search update: file $title does not exist\n");
+        }
+
+        if (defined('HACL_HALOACL_VERSION'))
+        {
+            // Reenable right checks
+            $haclgEnableTitleCheck = $etc;
         }
     }
     return true;
