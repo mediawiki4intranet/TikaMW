@@ -1,0 +1,14 @@
+Patch for MediaWiki 1.26 core required for TikaMW extension to work.
+
+diff --git a/includes/deferred/SearchUpdate.php b/includes/deferred/SearchUpdate.php
+index ba14f09..4132ac8 100644
+--- a/includes/deferred/SearchUpdate.php
++++ b/includes/deferred/SearchUpdate.php
+@@ -98,6 +98,7 @@ class SearchUpdate implements DeferrableUpdate {
+ 			}
+ 
+ 			$text = $search->getTextFromContent( $this->title, $this->content );
++			wfRunHooks( 'SearchUpdate', array( $this->id, $this->title, &$text, $this->content ) );
+ 			if ( !$search->textAlreadyUpdatedForIndex() ) {
+ 				$text = self::updateText( $text );
+ 			}

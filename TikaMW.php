@@ -32,14 +32,24 @@
  * it already includes Tika and this extension.
  *
  * MANUAL INSTALLATION:
+ *
  * 1) Install Java Virtual Machine (JVM) on the server
- * 2) Download a fixed copy of Apache Tika application, better from:
+ *
+ * 2) Download a fixed copy of Apache Tika application from here:
  *    http://code.google.com/p/mediawiki4intranet/downloads/detail?name=tika-app-1.2-fix-TIKA709-TIKA964.jar
  *    or
  *    http://wiki.4intra.net/public/tika-app-1.2-fix-TIKA709-TIKA964.jar
- * 3) Add Tika server to autostart / init-scripts on your server, like this:
+ *
+ * 3) Add Tika server to autostart / init-scripts on your server. Use this command:
  *    java -jar tika-app-1.2-fix-TIKA709-TIKA964.jar -p 127.0.0.1:8072 -t -eutf-8
- * 4) Put following lines into your LocalSettings.php:
+ *    (use a systemd unit or Debian/Ubuntu's start-stop-daemon to run in the background)
+ *    Start it.
+ *
+ * 4) For MediaWiki >= 1.22, apply the patch to MediaWiki core.
+ *    cd <mediawiki_install_dir>
+ *    patch -p1 < extensions/TikaMW/tikamw-mediawiki-1.26.diff
+ *
+ * 5) Put the following lines into your LocalSettings.php:
  *
  *    require_once "$IP/extensions/TikaMW/TikaMW.php";
  *
@@ -49,7 +59,7 @@
  *    // If your Tika is newer and supports more formats than 1.2,
  *    // you can override supported mime types with $egTikaMimeTypes (see below).
  *
- * 5) If you install it on a MediaWiki that already has uploaded files, you should
+ * 6) If you install it on a MediaWiki that already has uploaded files, you should
  *    rebuild the fulltext index - use maintenance/rebuildtextindex.php on stock
  *    mediawiki, extensions/SphinxSearchEngine/rebuild-sphinx.php if you use
  *    SphinxSearchEngine or maybe other script for some other engine.
