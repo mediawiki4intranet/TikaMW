@@ -8,7 +8,7 @@ index ba14f09..4132ac8 100644
  			}
  
  			$text = $search->getTextFromContent( $this->title, $this->content );
-+			wfRunHooks( 'SearchUpdate', array( $this->id, $this->title, &$text, $this->content ) );
++			wfRunHooks( 'SearchUpdate', array( $this->id, $this->title->getNamespace(), $this->title, &$text, $this->content ) );
  			if ( !$search->textAlreadyUpdatedForIndex() ) {
  				$text = self::updateText( $text );
  			}
