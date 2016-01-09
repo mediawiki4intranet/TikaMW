@@ -122,7 +122,7 @@ function efTikaSearchUpdate($id, $namespace, $title, &$text)
             $haclgEnableTitleCheck = false;
         }
 
-        $file = wfFindFile($title);
+        $file = RepoGroup::singleton()->getLocalRepo()->findFile($title, array('latest' => true));
         if ($file && file_exists($file_path = $file->$path_method()))
         {
             $filetext = $cli->extractTextFromFile($file_path, $file->getMimeType());
