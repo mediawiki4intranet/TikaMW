@@ -1,0 +1,91 @@
+Patch for Apache Tika 1.2 org.apache.tika.cli.TikaCLI class:
+* Fix hangups on M$Office documents
+* Fix socket cleanup - close streams before closing socket
+* Support specific bind address
+* Fix help text (-p is really used instead of -s)
+
+Index: tika-app/src/main/java/org/apache/tika/cli/TikaCLI.java
+===================================================================
+--- tika-app/src/main/java/org/apache/tika/cli/TikaCLI.java	(revision 1367353)
++++ tika-app/src/main/java/org/apache/tika/cli/TikaCLI.java	(working copy)
+@@ -28,6 +28,7 @@
+ import java.io.Writer;
+ import java.lang.reflect.Field;
+ import java.net.ServerSocket;
++import java.net.InetAddress;
+ import java.net.Socket;
+ import java.net.URI;
+ import java.net.URL;
+@@ -391,7 +392,12 @@
+         } else {
+             pipeMode = false;
+             if (serverMode) {
+-                new TikaServer(Integer.parseInt(arg)).start();
++                int pos;
++                if ((pos = arg.indexOf(':')) > 0) {
++                    new TikaServer(arg.substring(0, pos), Integer.parseInt(arg.substring(pos+1))).start();
++                } else {
++                    new TikaServer(Integer.parseInt(arg)).start();
++                }
+             } else if (arg.equals("-")) {
+                 InputStream stream =
+                     TikaInputStream.get(new CloseShieldInputStream(System.in));
+@@ -430,7 +436,7 @@
+         out.println("    -V  or --version       Print the Apache Tika version number");
+         out.println();
+         out.println("    -g  or --gui           Start the Apache Tika GUI");
+-        out.println("    -s  or --server        Start the Apache Tika server");
++        out.println("    -pX or --port=X        Start the Apache Tika server on port X");
+         out.println("    -f  or --fork          Use Fork Mode for out-of-process extraction");
+         out.println();
+         out.println("    -x  or --xml           Output XHTML content (default)");
+@@ -484,9 +490,11 @@
+         out.println();
+         out.println("- Server mode");
+         out.println();
+-        out.println("    Use the \"--server\" (or \"-s\") option to start the");
++        out.println("    Use the \"--port\" (or \"-p\") option to start the");
+         out.println("    Apache Tika server. The server will listen to the");
+-        out.println("    ports you specify as one or more arguments.");
++        out.println("    port or host:port you specify as one or more arguments.");
++        out.println("    Server usage is very simple: write file contents");
++        out.println("    to the socket, shutdown output, and read result.");
+         out.println();
+     }
+ 
+@@ -760,6 +768,11 @@
+             server = new ServerSocket(port);
+         }
+ 
++        public TikaServer(String host, int port) throws IOException {
++            super("Tika server at host " + host + ", port " + port);
++            server = new ServerSocket(port, 0, InetAddress.getByName(host));
++        }
++
+         @Override
+         public void run() {
+             try {
+@@ -780,12 +793,20 @@
+                 @Override
+                 public void run() {
+                     try {
++                        InputStream input = null;
++                        OutputStream output = null;
+                         try {
+-                            InputStream input = socket.getInputStream();
+-                            OutputStream output = socket.getOutputStream();
+-                            type.process(input, output, new Metadata());
++                            input = socket.getInputStream();
++                            output = socket.getOutputStream();
++                            type.process(new CloseShieldInputStream(input), output, new Metadata());
+                             output.flush();
+                         } finally {
++                            if (output != null) {
++                                output.flush();
++                                output.close();
++                            }
++                            if (input != null)
++                                input.close();
+                             socket.close();
+                         }
+                     } catch (Exception e) {
